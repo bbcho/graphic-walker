@@ -1,0 +1,207 @@
+# 50% Coverage Visual Roadmap
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    GRAPHIC WALKER - 50% COVERAGE ROADMAP                    │
+│                         Current: 5.8% → Target: 50%                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CURRENT STATE (Week 0)
+═══════════════════════════════════════════════════════════════════════════════
+  13 test files | 226 source files | 4,336 test lines | 149 tests
+  Coverage: 5.8% ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+
+PHASE 1: CRITICAL CORE (Weeks 1-3) 🔴 CRITICAL
+═══════════════════════════════════════════════════════════════════════════════
+┌─────────────┬──────────────────────┬────────────────────────────────────────┐
+│   WEEK 1    │   Store Module (7)   │  All application state management      │
+│             │   Priority: CRITICAL │  visualSpecStore, dataStore, theme     │
+├─────────────┼──────────────────────┼────────────────────────────────────────┤
+│   WEEK 2    │  DataSource (11)     │  Data loading, parsing, validation     │
+│             │   Priority: CRITICAL │  File upload, CSV/JSON parsers         │
+├─────────────┼──────────────────────┼────────────────────────────────────────┤
+│   WEEK 3    │   Workflow (3)       │  Data transformation pipeline          │
+│             │   Priority: CRITICAL │  workflow.ts, transform.ts, sql.ts     │
+└─────────────┴──────────────────────┴────────────────────────────────────────┘
+
+  +35 test files | 2,820 test lines | 199 tests
+  Total: 48 files | Coverage: 21% ██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+
+
+PHASE 2: VISUALIZATION CORE (Weeks 4-6) 🟡 HIGH
+═══════════════════════════════════════════════════════════════════════════════
+┌─────────────┬──────────────────────┬────────────────────────────────────────┐
+│  WEEKS 4-5  │   Vis Module (15)    │  Chart rendering & spec generation     │
+│             │   Priority: HIGH     │  react-vega, observable-plot, themes   │
+├─────────────┼──────────────────────┼────────────────────────────────────────┤
+│   WEEK 6    │ Visual Settings (2)  │  Encoding settings, axis/legend config │
+│             │   Priority: MEDIUM   │  visualSettings expansion              │
+└─────────────┴──────────────────────┴────────────────────────────────────────┘
+
+  +30 test files | 2,850 test lines | 182 tests
+  Total: 78 files | Coverage: 35% █████████████████░░░░░░░░░░░░░░░░░░░░░░░░░
+
+
+PHASE 3: UI COMPONENTS (Weeks 7-9) 🟡 HIGH
+═══════════════════════════════════════════════════════════════════════════════
+┌─────────────┬──────────────────────┬────────────────────────────────────────┐
+│   WEEK 7    │ Core Components (10) │  Drag-and-drop, config panels, tables  │
+│             │   Priority: HIGH     │  painter, visualConfig, dataTable      │
+├─────────────┼──────────────────────┼────────────────────────────────────────┤
+│   WEEK 8    │   Renderers (5)      │  Chart and map rendering components    │
+│             │   Priority: HIGH     │  Renderer, ChoroplethRenderer          │
+├─────────────┼──────────────────────┼────────────────────────────────────────┤
+│   WEEK 9    │ Field Components (5) │  Filter UI and field editors           │
+│             │   Priority: MEDIUM   │  filterField tabs and editors          │
+└─────────────┴──────────────────────┴────────────────────────────────────────┘
+
+  +25 test files | 3,800 test lines | 228 tests
+  Total: 103 files | Coverage: 46% ███████████████████████░░░░░░░░░░░░░░░░░░░
+
+
+PHASE 4: UTILITIES & POLISH (Weeks 10-12) 🟢 MEDIUM
+═══════════════════════════════════════════════════════════════════════════════
+┌─────────────┬──────────────────────┬────────────────────────────────────────┐
+│ WEEKS 10-11 │   Utilities (8)      │  Helper functions and data prep        │
+│             │   Priority: MEDIUM   │  utils expansion, colors, dataPrep     │
+├─────────────┼──────────────────────┼────────────────────────────────────────┤
+│   WEEK 12   │    Models (2)        │  History management and type guards    │
+│             │   Priority: LOW      │  visSpecHistory, interfaces            │
+└─────────────┴──────────────────────┴────────────────────────────────────────┘
+
+  +10 test files | 1,600 test lines | 112 tests
+  Total: 113 files | Coverage: 50% █████████████████████████████░░░░░░░░░░░░░
+
+  ╔═══════════════════════════════════════════════════════════════════════╗
+  ║                    🎉 50% COVERAGE ACHIEVED! 🎉                       ║
+  ║              113 test files | 15,406 test lines | 870 tests          ║
+  ╚═══════════════════════════════════════════════════════════════════════╝
+
+
+COVERAGE PROGRESSION
+═══════════════════════════════════════════════════════════════════════════════
+
+Week 0:  5.8%  ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+Week 3:  21%   ██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+Week 6:  35%   █████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+Week 9:  46%   ███████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░
+Week 12: 50%   █████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░
+
+
+TOP 10 PRIORITY FILES (Start with these)
+═══════════════════════════════════════════════════════════════════════════════
+
+ 🥇  store/visualSpecStore.ts         (900 lines)  🔴 CRITICAL
+ 🥈  utils/workflow.ts                (451 lines)  🔴 CRITICAL
+ 🥉  lib/sql.ts                       (776 lines)  🔴 CRITICAL
+ 4️⃣   dataSource/index.tsx            (280 lines)  🔴 CRITICAL
+ 5️⃣   components/painter/index.tsx    (1232 lines) 🟡 HIGH
+ 6️⃣   vis/react-vega.tsx              (567 lines)  🟡 HIGH
+ 7️⃣   components/visualConfig/index   (715 lines)  🟡 HIGH
+ 8️⃣   visualSettings/index.tsx        (692 lines)  🟡 MEDIUM
+ 9️⃣   fields/filterField/tabs.tsx     (999 lines)  🟡 MEDIUM
+ 🔟  models/visSpecHistory.ts         (717 lines)  🟢 LOW
+
+
+MODULE COVERAGE HEATMAP
+═══════════════════════════════════════════════════════════════════════════════
+
+┌────────────────┬──────────────┬──────────────┬──────────────┬─────────────┐
+│ Module         │ Current      │ After Ph1    │ After Ph2    │ After Ph4   │
+├────────────────┼──────────────┼──────────────┼──────────────┼─────────────┤
+│ computation    │ 50% ████████ │ 50% ████████ │ 50% ████████ │ 50% ████████│
+│ models         │ 40% ███████  │ 40% ███████  │ 40% ███████  │ 80% ████████│
+│ visualSettings │ 33% ██████   │ 33% ██████   │ 100% ████████│ 100% ███████│
+│ lib            │ 21% ████     │ 35% ██████   │ 60% █████████│ 70% █████████│
+│ utils          │ 6%  █        │ 13% ██       │ 13% ██       │ 60% █████████│
+│ fields         │ 4%  █        │ 4%  █        │ 4%  █        │ 27% █████   │
+│ components     │ 2%  ░        │ 2%  ░        │ 21% ████     │ 21% ████    │
+│ store          │ 0%  ░        │ 100% ████████│ 100% ████████│ 100% ███████│
+│ dataSource     │ 0%  ░        │ 91% █████████│ 91% █████████│ 91% █████████│
+│ vis            │ 0%  ░        │ 0%  ░        │ 100% ████████│ 100% ███████│
+└────────────────┴──────────────┴──────────────┴──────────────┴─────────────┘
+
+
+EFFORT BREAKDOWN
+═══════════════════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│  Phase 1: Critical Core           │ ███████████████████ 38% of effort    │
+│  Phase 2: Visualization            │ ████████████████ 27% of effort       │
+│  Phase 3: UI Components            │ █████████████████████ 41% of effort  │
+│  Phase 4: Utilities & Polish       │ ████████ 14% of effort               │
+└──────────────────────────────────────────────────────────────────────────┘
+
+Total Effort: 11,070 lines of new test code across 100 new test files
+
+
+RESOURCE ALLOCATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Weeks 1-3:  [DEV 1] Store      [DEV 2] DataSource  [DEV 3] Workflow
+            └─────────────────────────────────────────────────────┘
+                         🔴 CRITICAL PATH
+
+Weeks 4-6:  [DEV 1] Vega/VL    [DEV 2] Observable  [DEV 3] Settings
+            └─────────────────────────────────────────────────────┘
+                         🟡 HIGH PRIORITY
+
+Weeks 7-9:  [DEV 1] Painter    [DEV 2] Renderers   [DEV 3] Fields
+            └─────────────────────────────────────────────────────┘
+                         🟡 MEDIUM PRIORITY
+
+Weeks 10-12: [DEV 1] Utils     [DEV 2] Models      [DEV 3] Polish
+             └─────────────────────────────────────────────────────┘
+                          🟢 LOW PRIORITY
+
+
+QUICK WINS (Parallel with main work)
+═══════════════════════════════════════════════════════════════════════════════
+
+Day 1:  ✅ Set up coverage reporting in CI/CD
+Day 2:  ✅ Create test data generators (products, sales, users)
+Day 3:  ✅ Add testing utilities (mock factories, helpers)
+Day 4:  ✅ Document testing patterns and guidelines
+Day 5:  ✅ Begin Phase 1 implementation
+
+
+SUCCESS METRICS
+═══════════════════════════════════════════════════════════════════════════════
+
+Quantitative:
+  ✅ 50% file coverage (113/226 files)
+  ✅ 15,406 lines of test code
+  ✅ 870+ test cases
+  ✅ All critical paths covered
+
+Qualitative:
+  ✅ Realistic test data (business scenarios)
+  ✅ Performance benchmarks included
+  ✅ Edge cases documented
+  ✅ Integration tests for critical flows
+  ✅ CI/CD automation complete
+
+
+RISK MITIGATION
+═══════════════════════════════════════════════════════════════════════════════
+
+🔴 High Risk Areas:
+   • State management (race conditions) → Property-based testing
+   • Data pipeline (memory leaks) → Performance profiling
+   • Visualization (rendering bugs) → Snapshot testing
+   • Async operations (promises) → Fake timers
+
+Quality Gates (Each Phase):
+   ✅ All tests passing
+   ✅ No linting/type errors
+   ✅ Build succeeds
+   ✅ Performance benchmarks met
+   ✅ Code review completed
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                              READY TO BEGIN!
+    See COVERAGE_50_PERCENT_PLAN.md and COVERAGE_CHECKLIST.md for details
+═══════════════════════════════════════════════════════════════════════════════
+```
