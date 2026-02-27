@@ -17,6 +17,7 @@ import { addFilterForQuery, createFilter } from '../../utils/workflow';
 import { Button, buttonVariants } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 interface DataTableProps {
     /** page limit */
@@ -377,6 +378,23 @@ const DataTable = forwardRef(
             obRef.current = observer;
         }
     }, []);
+    
+    // Virtual scrolling setup
+    const tableContainerRef = useRef<HTMLDivElement>(null);
+    
+    // Only enable virtual scrolling if we have a reasonable number of rows
+    const enableVirtualScrolling = rows.length > 50;
+    
+    const rowVirtualizer = useVirtualizer({
+        count: rows.length,
+        getScrollElement: () => tableContainerRef.current,
+        estimateSize: () => 41, // Estimated row height (py-2 + text height)
+        overscan: 10, // Number of items to render outside visible area
+        enabled: enableVirtualScrolling,
+    });
+    
+    const virtualItems = enableVirtualScrolling ? rowVirtualizer.getVirtualItems() : null;
+    const totalHeight = enableVirtualScrolling ? rowVirtualizer.getTotalSize() : undefined;
     return (
         <Container className="relative">
             {!disableFilter && filters.length > 0 && (
@@ -413,7 +431,7 @@ const DataTable = forwardRef(
                     </div>
                 </nav>
             )}
-            <div className="overflow-y-auto h-full" style={{ maxHeight: '600px' }}>
+            <div className="overflow-y-auto h-full" style={{ maxHeight: '600px' }} ref={tableContainerRef}>
                 <div className="h-0 w-full" ref={stickyDector}></div>
                 <table className="min-w-full relative border-x">
                     <thead className={`sticky top-0 bg-background ${isSticky ? 'shadow-md' : ''}`}>
@@ -449,64 +467,69 @@ const DataTable = forwardRef(
                                                             <DataTypeIcon dataType={f.value.semanticType} analyticType={f.value.analyticType} />
                                                         </span>
                                                     )}
-                                                    {!hideSemanticType && onMetaChange && (
+                                                    {(hideSemanticType || onMetaChange) && (
                                                         <DropdownContext
+                                                            disable={!onMetaChange}
                                                             options={semanticTypeList}
                                                             onSelect={(value) => {
-                                                                onMetaChange(f.value.fid, f.fIndex, {
-                                                                    semanticType: value as IMutField['semanticType'],
-                                                                });
+                                                                if (onMetaChange) {
+                                                                    onMetaChange(f.value.fid, f.fIndex, {
+                                                                        semanticType: value as IMutField['semanticType'],
+                                                                    });
+                                                                }
                                                             }}
                                                         >
-                                                            <span
-                                                                className={
-                                                                    'cursor-pointer inline-flex p-0.5 text-xs mt-1 rounded hover:scale-125 ' +
-                                                                    getSemanticColors(f.value)
-                                                                }
-                                                            >
+                                                            <span className={'inline-flex p-0.5 text-xs mt-1 rounded ' + getSemanticColors(f.value)}>
                                                                 <DataTypeIcon dataType={f.value.semanticType} analyticType={f.value.analyticType} />
                                                             </span>
                                                         </DropdownContext>
                                                     )}
                                                 </div>
-                                                <b
-                                                    className="inline-block"
-                                                    onClick={() => {
-                                                        if (disableSorting) return;
-                                                        setSorting((s) => {
-                                                            if (s?.fid === f.value.fid && s.sort === 'descending') {
-                                                                return {
-                                                                    fid: f.value.fid,
-                                                                    sort: 'ascending',
-                                                                };
-                                                            }
-                                                            return {
-                                                                fid: f.value.fid,
-                                                                sort: 'descending',
-                                                            };
-                                                        });
-                                                    }}
-                                                >
-                                                    {f.value.basename || f.value.name || f.value.fid}
-                                                </b>
-                                                {!disableSorting && sorting?.fid === f.value.fid && (
-                                                    <div className="mx-1">
-                                                        {sorting.sort === 'ascending' && <BarsArrowUpIcon className="w-3" />}
-                                                        {sorting.sort === 'descending' && <BarsArrowDownIcon className="w-3" />}
+                                                <div className="flex-1 overflow-hidden">
+                                                    <div className="flex items-center gap-1 flex-1">
+                                                        <div className="truncate">{f.value.name || f.value.fid}</div>
+                                                        {!disableSorting && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="opacity-0 group-hover:opacity-100 hover:bg-muted h-5 w-5 shrink-0"
+                                                                onClick={() => {
+                                                                    if (sorting?.fid === f.value.fid) {
+                                                                        setSorting({
+                                                                            fid: f.value.fid,
+                                                                            sort: sorting.sort === 'ascending' ? 'descending' : 'ascending',
+                                                                        });
+                                                                    } else {
+                                                                        setSorting({
+                                                                            fid: f.value.fid,
+                                                                            sort: 'ascending',
+                                                                        });
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {sorting?.fid === f.value.fid ? (
+                                                                    sorting.sort === 'ascending' ? (
+                                                                        <BarsArrowUpIcon className="w-3 h-3" />
+                                                                    ) : (
+                                                                        <BarsArrowDownIcon className="w-3 h-3" />
+                                                                    )
+                                                                ) : (
+                                                                    <BarsArrowUpIcon className="w-3 h-3" />
+                                                                )}
+                                                            </Button>
+                                                        )}
+                                                        {!disableFilter && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="opacity-0 group-hover:opacity-100 hover:bg-muted h-5 w-5 shrink-0"
+                                                                onClick={() => onSelectFilter(f.value.fid)}
+                                                            >
+                                                                <FunnelIcon className="w-3 h-3" />
+                                                            </Button>
+                                                        )}
                                                     </div>
-                                                )}
-                                                {!disableFilter && (
-                                                    <div
-                                                        className={buttonVariants({
-                                                            variant: 'ghost',
-                                                            className: 'cursor-pointer invisible group-hover:visible',
-                                                            size: 'icon-sm',
-                                                        })}
-                                                        onClick={() => onSelectFilter(f.value.fid)}
-                                                    >
-                                                        <FunnelIcon className="w-4 inline-block" />
-                                                    </div>
-                                                )}
+                                                </div>
                                             </div>
                                         )}
                                     </th>
@@ -530,21 +553,63 @@ const DataTable = forwardRef(
                         )}
                     </thead>
                     <tbody className="divide-y divide-border bg-background font-mono">
-                        {rows.map((row, index) => (
-                            <tr className="divide-x divide-border" key={index}>
-                                {metas.map((field) => {
-                                    const value = fieldValue({ field, item: row, displayOffset });
+                        {enableVirtualScrolling && virtualItems ? (
+                            <>
+                                {/* Spacer for virtual scrolling */}
+                                {virtualItems.length > 0 && (
+                                    <tr style={{ height: `${virtualItems[0].start}px` }}>
+                                        <td colSpan={metas.length}></td>
+                                    </tr>
+                                )}
+                                {virtualItems.map((virtualRow) => {
+                                    const row = rows[virtualRow.index];
                                     return (
-                                        <td
-                                            key={field.fid + index}
-                                            className={getHeaderType(field) + ' whitespace-nowrap py-2 px-4 text-xs text-muted-foreground max-w-[240px]'}
+                                        <tr
+                                            className="divide-x divide-border"
+                                            key={virtualRow.index}
+                                            style={{
+                                                height: `${virtualRow.size}px`,
+                                            }}
                                         >
-                                            <TruncateDector value={value} />
-                                        </td>
+                                            {metas.map((field) => {
+                                                const value = fieldValue({ field, item: row, displayOffset });
+                                                return (
+                                                    <td
+                                                        key={field.fid + virtualRow.index}
+                                                        className={getHeaderType(field) + ' whitespace-nowrap py-2 px-4 text-xs text-muted-foreground max-w-[240px]'}
+                                                    >
+                                                        <TruncateDector value={value} />
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
                                     );
                                 })}
-                            </tr>
-                        ))}
+                                {/* Spacer after last visible item */}
+                                {virtualItems.length > 0 && totalHeight && (
+                                    <tr style={{ height: `${totalHeight - virtualItems[virtualItems.length - 1].end}px` }}>
+                                        <td colSpan={metas.length}></td>
+                                    </tr>
+                                )}
+                            </>
+                        ) : (
+                            // Fallback to regular rendering for small datasets
+                            rows.map((row, index) => (
+                                <tr className="divide-x divide-border" key={index}>
+                                    {metas.map((field) => {
+                                        const value = fieldValue({ field, item: row, displayOffset });
+                                        return (
+                                            <td
+                                                key={field.fid + index}
+                                                className={getHeaderType(field) + ' whitespace-nowrap py-2 px-4 text-xs text-muted-foreground max-w-[240px]'}
+                                            >
+                                                <TruncateDector value={value} />
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
