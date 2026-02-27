@@ -187,9 +187,38 @@ class NodeIterator {
 
 export function buildMetricTableFromNestTree(leftTree: INestNode, topTree: INestNode, data: IRow[]): (IRow | null)[][] {
     const mat: any[][] = [];
+    
+    // Build an index for fast lookups - O(n) instead of O(n * cells)
+    // Key is a stringified version of the predicates, value is the matching rows
+    const dataIndex = new Map<string, IRow[]>();
+    
+    // Helper to create a consistent key from predicates
+    const createIndexKey = (predicates: { key: string; value: string | number }[]): string => {
+        // Sort predicates by key for consistent hashing
+        const sorted = [...predicates].sort((a, b) => a.key.localeCompare(b.key));
+        return sorted.map(p => `${p.key}:${p.value}`).join('|');
+    };
+    
+    // Pre-build index from data - this is O(n * m) where m is avg number of keys per row
+    // but only done once instead of for every cell
+    for (const row of data) {
+        // Generate all possible predicate combinations for this row
+        const keys = Object.keys(row);
+        // For efficiency, we'll index by each individual key-value pair
+        // and filter combinations later
+        for (const key of keys) {
+            const simpleKey = `${key}:${row[key]}`;
+            if (!dataIndex.has(simpleKey)) {
+                dataIndex.set(simpleKey, []);
+            }
+            dataIndex.get(simpleKey)!.push(row);
+        }
+    }
+    
     const iteLeft = new NodeIterator(leftTree);
     const iteTop = new NodeIterator(topTree);
     iteLeft.first();
+    
     while (iteLeft.current !== null) {
         const vec: any[] = [];
         iteTop.first();
@@ -198,7 +227,36 @@ export function buildMetricTableFromNestTree(leftTree: INestNode, topTree: INest
                 .predicates()
                 .concat(iteTop.predicates())
                 .filter((ele) => ele.key !== TOTAL_KEY);
-            const matchedRows = data.filter((r) => predicates.every((pre) => r[pre.key] === pre.value));
+            
+            if (predicates.length === 0) {
+                vec.push(undefined);
+                iteTop.next();
+                continue;
+            }
+            
+            // Start with candidates from the first predicate (smallest set)
+            let candidates: IRow[] | null = null;
+            let smallestSetSize = Infinity;
+            
+            // Find the predicate with smallest matching set to start with
+            for (const pred of predicates) {
+                const key = `${pred.key}:${pred.value}`;
+                const matchingRows = dataIndex.get(key);
+                if (!matchingRows || matchingRows.length === 0) {
+                    candidates = [];
+                    break;
+                }
+                if (matchingRows.length < smallestSetSize) {
+                    candidates = matchingRows;
+                    smallestSetSize = matchingRows.length;
+                }
+            }
+            
+            // Filter candidates by remaining predicates
+            const matchedRows = candidates ? candidates.filter((r) => 
+                predicates.every((pre) => r[pre.key] === pre.value)
+            ) : [];
+            
             if (matchedRows.length > 0) {
                 // If multiple rows are matched, then find the most matched one (the row with smallest number of keys)
                 vec.push(matchedRows.reduce((a, b) => (Object.keys(a).length < Object.keys(b).length ? a : b)));

@@ -11,6 +11,17 @@ export const dataQueryClient = async (
         console.log('local query triggered', workflow);
     }
     let res = rawData;
+    
+    // Check if we can apply limit early (before expensive operations)
+    // We can do this if there's no aggregation/grouping in the view step
+    const hasAggregation = workflow.some(step => 
+        step.type === 'view' && step.query.some(q => q.op && q.op !== 'raw')
+    );
+    
+    // Apply early limit for simple queries (filter + sort only, no aggregation)
+    const shouldApplyEarlyLimit = !hasAggregation && limit !== undefined && 
+        workflow.every(step => step.type === 'filter' || step.type === 'sort');
+    
     for await (const step of workflow) {
         switch (step.type) {
             case 'filter': {
@@ -35,6 +46,10 @@ export const dataQueryClient = async (
             }
             case 'sort': {
                 res = await applySort(res, step.by, step.sort);
+                // Apply limit early after sort for simple queries
+                if (shouldApplyEarlyLimit) {
+                    res = res.slice(offset ?? 0, limit ? ((offset ?? 0) + limit) : undefined);
+                }
                 break;
             }
             default: {
@@ -44,7 +59,13 @@ export const dataQueryClient = async (
             }
         }
     }
-    return res.slice(offset ?? 0, limit ? ((offset ?? 0) + limit) : undefined);
+    
+    // Apply limit at the end if not already applied early
+    if (!shouldApplyEarlyLimit) {
+        return res.slice(offset ?? 0, limit ? ((offset ?? 0) + limit) : undefined);
+    }
+    
+    return res;
 };
 
 export const getComputation = (rawData: IRow[]) => (payload: IDataQueryPayload) => dataQueryClient(rawData, payload.workflow, payload.offset, payload.limit)
